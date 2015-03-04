@@ -1,5 +1,13 @@
 #!/usr/bin/python
 
+# 20140303: Figured out CGI, form, call to shell: works
+# TODO: bring bash script into python, calling enscript directly
+# TODO: output result from enscript to printing screen
+# TODO: radio button to select envelope size
+# TODO: allow entry of return address with default
+# TODO: show/hide return address box
+# TODO: remember addresses printed, allow user to select
+
 # Import the CGI module
 import cgi
 import os
