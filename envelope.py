@@ -15,8 +15,8 @@ def generate_form():
 
 	# TODO seed fromaddress from server/browser history
 	# TODO on-load, hide fromaddress when non-empty
-	print "<p>From:<\p>\n"
-	#	print "<div><textarea name=\"fromaddress\" cols=40 rows=5></div>\n"
+	#print "<p>From:</p>\n"
+	#print "<div><textarea name=\"fromaddress\" cols=40 rows=5></textarea></div>\n"
 	
 	print "<p>To:</p>\n"
 	print "<div><textarea name=\"toaddress\" cols=40 rows=5></textarea></div>\n"
@@ -28,11 +28,16 @@ def generate_form():
 	print "</HTML>\n"
 
 # Define function display data.
-def display_data(toaddress):
+def print_envelope(toaddress):
 	print "<HTML>\n"
 	print "<HEAD><TITLE>Envelope Printing</TITLE></HEAD>\n"
 	print "<BODY>\n"
-	print "ToAddress = ", toaddress
+	print "Printed address = ", toaddress
+	print "<ul>\n"
+	for line in toaddress.splitlines():
+		print "<li>", line, "</li>\n"
+	print "</ul>\n"
+	print "<p></p><p><a href=\"./envelope.py\"> Print another</a></p>"
 	print "</BODY>\n"
 	print "</HTML>\n"
 
@@ -41,7 +46,7 @@ def main():
 	form = cgi.FieldStorage()
 	if (form.has_key("action") and form.has_key("toaddress")):
 		if (form["action"].value == "display"):
-			display_data(form["toaddress"].value)
+			print_envelope(form["toaddress"].value)
 	else:
 		 generate_form()
 
