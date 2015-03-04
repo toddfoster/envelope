@@ -2,6 +2,7 @@
 
 # Import the CGI module
 import cgi
+import os
 
 # Required header that tells the browser how to render the HTML.
 print "Content-Type: text/html\n\n"
@@ -32,11 +33,21 @@ def print_envelope(toaddress):
 	print "<HTML>\n"
 	print "<HEAD><TITLE>Envelope Printing</TITLE></HEAD>\n"
 	print "<BODY>\n"
-	print "Printed address = ", toaddress
+	print "<p>Printed address = </p>"
 	print "<ul>\n"
+	param = ""
 	for line in toaddress.splitlines():
-		print "<li>", line, "</li>\n"
+		line = line.strip()
+		if len(line) > 0:
+			line = line.replace('"','')
+			line = line.replace('`','')
+			param = param + "\"" + line + "\" "
+			print "<li>", line, "</li>\n"
 	print "</ul>\n"
+
+	cmd = "/home/pi/bin/envstationery " + param
+	os.system(cmd)
+
 	print "<p></p><p><a href=\"./envelope.py\"> Print another</a></p>"
 	print "</BODY>\n"
 	print "</HTML>\n"
