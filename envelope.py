@@ -15,7 +15,6 @@ import os
 # Required header that tells the browser how to render the HTML.
 print "Content-Type: text/html\n\n"
 
-# Define function to generate HTML form.
 def generate_form():
 	print "<HTML>\n"
 	print "<HEAD><TITLE>Print an Envelope</TITLE></HEAD>\n"
@@ -36,8 +35,8 @@ def generate_form():
 	print "</BODY>\n"
 	print "</HTML>\n"
 
-# Define function display data.
-def print_envelope(toaddress):
+
+def generateResults(toaddress):
 	print "<HTML>\n"
 	print "<HEAD><TITLE>Envelope Printing</TITLE></HEAD>\n"
 	print "<BODY>\n"
@@ -53,12 +52,36 @@ def print_envelope(toaddress):
 			print "<li>", line, "</li>\n"
 	print "</ul>\n"
 
-	cmd = "/home/pi/bin/envstationery " + param
-	os.system(cmd)
-
 	print "<p></p><p><a href=\"./envelope.py\"> Print another</a></p>"
 	print "</BODY>\n"
 	print "</HTML>\n"
+
+
+def sanitizeAddress(toaddress):
+	result = ""
+	for line in toaddress.splitlines():
+		line = line.strip()
+		line = line.replace('"','')
+		line = line.replace('`','')
+		if len(line) > 0:
+			result = result + line + "\n"
+	return result
+
+
+def parametizeAddress(toaddress):
+	result = ""
+	for line in toaddress.splitlines():
+		result = result + "\"" + line + "\" "
+	return result
+
+
+def print_envelope(toaddress):
+	toaddress = sanitizeAddress(toaddress)
+	param = parametizeAddress(toaddress)
+	cmd = "/home/pi/bin/envstationery " + param
+	os.system(cmd)
+	generateResults(toaddress)
+
 
 # Define main function.
 def main():
