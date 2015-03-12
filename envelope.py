@@ -4,22 +4,29 @@
 # TODO: allow entry of return address with default
 # TODO: show/hide return address box
 # TODO: remember addresses printed, allow user to select
+# TODO: improve css for rounding corners, image gradient, etc.
 # Done: 
 # 20150303: Figured out CGI, form, call to shell: works
 # 20140305: bring bash script into python, calling enscript directly
 # 20150305: output result from enscript to printing screen
 
-# Import the CGI module
 import cgi
-import subprocess
+import subprocess 
+import socket # for hostname
+
+DEBUG = 1 #disable printing while testing
 
 # Required header that tells the browser how to render the HTML.
 print "Content-Type: text/html\n\n"
+print "<HTML>"
+print "<HEAD>"
+print "<link rel='stylesheet' type='text/css' href='buttons.css' media='screen' />"
+print "<TITLE>Print an Envelope</TITLE>"
+print "</HEAD>"
+print "<BODY>"
 
-def generateForm():
-	print "<HTML>\n"
-	print "<HEAD><TITLE>Print an Envelope</TITLE></HEAD>\n"
-	print "<h3>Print an Envelope</h3>\n"
+def displayForm():
+	print "<h3>Print an Envelope on ", socket.gethostname(), "</h3>\n"
 	print "<FORM METHOD=post ACTION=\"envelope.py\">\n"
 
 	# TODO seed fromaddress from server/browser history
@@ -30,28 +37,19 @@ def generateForm():
 	print "<p>To:</p>\n"
 	print "<div><textarea name=\"toAddress\" cols=40 rows=5></textarea></div>\n"
 
-	print "<INPUT TYPE=hidden NAME =\"action\" VALUE=\"display\">\n"
+	print "<INPUT TYPE=hidden NAME =\"action\" VALUE=\"print\">\n"
 	print "<INPUT TYPE=submit VALUE=\"Enter\">\n"
 	print "</FORM>\n"
-	print "</BODY>\n"
-	print "</HTML>\n"
 
 
-def generateResults(toAddress, result):
-	print "<HTML>\n"
-	print "<HEAD><TITLE>Envelope Printing</TITLE></HEAD>\n"
-	print "<BODY>\n"
-	print "<p>Printed address:</p>"
-	print "<ul>\n"
-	for line in toAddress:
-		print "<li>", line, "</li>\n"
-	print "</ul>\n"
-
+def displayResults(address, result):
+	print "<h3>Printed address:</h3>"
+	print "<pre style=\"background-color:#faf8f0; outline: 1px solid black; padding:5px;\">"
+	print '\n'.join(address)
+	print "</pre>"
 	print "<p>OS responded: ", result, "</p>\n"
-
-	print "<p></p><p><a href=\"./envelope.py\"> Print another</a></p>"
-	print "</BODY>\n"
-	print "</HTML>\n"
+	print "<p></p>"
+	print "<p><a href='./envelope.py' class='button large black'>Print another</a></p>"
 
 
 def sanitizeAddress(toAddress):
@@ -81,24 +79,28 @@ def print_envelope(toAddress):
 	cmd = ["/usr/bin/enscript", "--no-header", "--landscape", 
 		"--font=CourierBold@12"]
 	cmd.append("--margins=160:0:0:425")
-	process = subprocess.Popen(cmd,
-			stdin=subprocess.PIPE, 
-			stdout=subprocess.PIPE, 
-			stderr=subprocess.PIPE)
-	return process.communicate(content)
-#, shell=False, 
+	if DEBUG:
+		return cmd
+	else:
+		process = subprocess.Popen(cmd,
+				stdin=subprocess.PIPE, 
+				stdout=subprocess.PIPE, 
+				stderr=subprocess.PIPE)
+		return process.communicate(content)
 
 
 # Define main function.
 def main():
 	form = cgi.FieldStorage()
 	if (form.has_key("action") and form.has_key("toAddress")):
-		if (form["action"].value == "display"):
+		if (form["action"].value == "print"):
 			toAddress = sanitizeAddress(form["toAddress"].value)
 			result = print_envelope(toAddress)
-			generateResults(toAddress, result)
+			displayResults(toAddress, result)
 	else:
-		 generateForm()
+		 displayForm()
+	print "</BODY>\n"
+	print "</HTML>\n"
 
 # Call main function.
 main()
