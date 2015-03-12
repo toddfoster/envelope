@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 # TODO: radio button to select envelope size
-# TODO: allow entry of return address with default
 # TODO: show/hide return address box
 # TODO: remember addresses printed, allow user to select
 # TODO: improve css for rounding corners, image gradient, etc.
@@ -9,14 +8,18 @@
 # 20150303: Figured out CGI, form, call to shell: works
 # 20140305: bring bash script into python, calling enscript directly
 # 20150305: output result from enscript to printing screen
+# 20150312: allow entry of return address with default
 
 import cgi
 import subprocess 
 import socket # for hostname
 
 DEBUG = 1 #disable printing while testing
+if DEBUG:
+	import cgitb; cgitb.enable()
 
-# Required header that tells the browser how to render the HTML.
+returnAddressFile="/home/pi/Documents/tef/secrets/returnAddress.txt"
+
 print "Content-Type: text/html\n\n"
 print "<HTML>"
 print "<HEAD>"
@@ -27,76 +30,79 @@ print "<BODY>"
 
 def displayForm():
 	print "<h3>Print an Envelope on ", socket.gethostname(), "</h3>\n"
-	print "<FORM METHOD=post ACTION=\"envelope.py\">\n"
+	print "<FORM METHOD=post ACTION='envelope.py'>"
 
 	# TODO seed fromaddress from server/browser history
 	# TODO on-load, hide fromaddress when non-empty
-	#print "<p>From:</p>\n"
-	#print "<div><textarea name=\"fromaddress\" cols=40 rows=5></textarea></div>\n"
+	print "<p>From:</p>"
+	print "<div><textarea name='fromAddress' cols=40 rows=5></textarea></div>"
 	
-	print "<p>To:</p>\n"
-	print "<div><textarea name=\"toAddress\" cols=40 rows=5></textarea></div>\n"
+	print "<p>To:</p>"
+	print "<div><textarea name='toAddress' cols=40 rows=5></textarea></div>"
 
-	print "<INPUT TYPE=hidden NAME =\"action\" VALUE=\"print\">\n"
-	print "<INPUT TYPE=submit VALUE=\"Enter\">\n"
-	print "</FORM>\n"
+	print "<p></p>"
+
+	print "<INPUT TYPE=hidden NAME ='action' VALUE='print'>"
+	print "<INPUT TYPE=submit VALUE='Enter'>"
+	print "</FORM>"
 
 
-def displayResults(address, result):
+def displayResults(result):
 	print "<h3>Printed address:</h3>"
 	print "<pre style=\"background-color:#faf8f0; outline: 1px solid black; padding:5px;\">"
-	print '\n'.join(address)
+	print result[0]
 	print "</pre>"
-	print "<p>OS responded: ", result, "</p>\n"
+	print "<p>OS responded: ", result if DEBUG else result[1], "</p>\n"
 	print "<p></p>"
 	print "<p><a href='./envelope.py' class='button large black'>Print another</a></p>"
 
 
-def sanitizeAddress(toAddress):
+def sanitizeAddress(address):
 	result = []
-	for line in toAddress.splitlines():
+	for line in address.splitlines():
 		candidate = line.strip().replace('"','').replace('`','')
 		if len(candidate) > 0:
 			result.append(candidate)
 	return result
 
 
-def print_envelope(toAddress):
-
-	returnAddress="-"
-	returnAddressFile="/home/pi/Documents/tef/secrets/returnAddress.txt"
-	try:
-		with open(returnAddressFile) as f:
-			returnAddress = f.read()
-	except Exception:
-		pass
-
+def print_envelope(fromAddress, toAddress):
 	vmargin = "\n" * 6
 	hmargin = " " * 20
-	content = (returnAddress + vmargin + 
+	content = ('\n'.join(fromAddress) + vmargin + 
 			hmargin + ("\n" + hmargin).join(toAddress))
 
 	cmd = ["/usr/bin/enscript", "--no-header", "--landscape", 
 		"--font=CourierBold@12"]
 	cmd.append("--margins=160:0:0:425")
 	if DEBUG:
-		return cmd
+		return [content, ' '.join(cmd)]
 	else:
 		process = subprocess.Popen(cmd,
 				stdin=subprocess.PIPE, 
 				stdout=subprocess.PIPE, 
 				stderr=subprocess.PIPE)
-		return process.communicate(content)
+		return [content, process.communicate(content)]
 
 
 # Define main function.
 def main():
 	form = cgi.FieldStorage()
-	if (form.has_key("action") and form.has_key("toAddress")):
+	if (form.has_key("action") and 
+	form.has_key("toAddress")):
 		if (form["action"].value == "print"):
+			fromAddress = ''
+			if form.has_key("fromAddress"):
+				fromAddress = sanitizeAddress(form["fromAddress"].value)
+			if len(fromAddress) == 0:
+				try:
+					with open(returnAddressFile) as f:
+						fromAddress = sanitizeAddress(f.read())
+				except Exception:
+					pass
 			toAddress = sanitizeAddress(form["toAddress"].value)
-			result = print_envelope(toAddress)
-			displayResults(toAddress, result)
+			result = print_envelope(fromAddress, toAddress)
+			displayResults(result)
 	else:
 		 displayForm()
 	print "</BODY>\n"
