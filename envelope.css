@@ -43,3 +43,13 @@
 .button.large:active { padding: 8px 12px 6px; background-position: 0 top; }
 
 .hidden { display: none; }
+.bold {font-weight: bold; }
+
+.floatLeft { width: 150px; padding: 15px; float: left; }
+.bordered { border: 1px solid black; border-radius: 20px; 
+	padding:0px 0px 15px 15px; }
+.clear { clear: both; }
+.greybackground { background-color: #d3d3d3; }
+.yellowbackground { background-color: lightyellow; } 
+
+.test { border: 2px solid red; }

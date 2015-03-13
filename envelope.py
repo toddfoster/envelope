@@ -1,40 +1,32 @@
 #!/usr/bin/python
 
-# TODO: radio button to select envelope size
+# Print envelopes; intended to run on my home server without external access.
+# A learning experiment for python & cgi
+# Todd Foster, March 2015
+#
 # TODO: remember addresses printed, associated return, allow user to select
-# Done: 
-# 20150303: Figured out CGI, form, call to shell: works
-# 20140305: bring bash script into python, calling enscript directly
-# 20150305: output result from enscript to printing screen
-# 20150312: allow entry of return address with default
-# 20150313: improve css for rounding corners, image gradient, etc.
-# 20150313: show/hide return address box
-# 20150313: provide default address in return address box
+#
 
 import cgi
 import subprocess 
-import socket # for hostname
+import socket
 
-DEBUG = 1 #disable printing while testing
+DEBUG = 0 #disable printing while testing
 if DEBUG:
 	import cgitb; cgitb.enable()
 
 returnAddressFile="/home/pi/Documents/tef/secrets/returnAddress.txt"
 
-print "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>"
-print "<HTML>"
-print "<HEAD>"
-print "<link rel='stylesheet' type='text/css' href='buttons.css' media='screen' />"
-print "<TITLE>Print an Envelope</TITLE>"
-print "<script src='show.js'></script>"
-print "</HEAD>"
-print "<BODY>"
+printSettings = {
+	'small'     :{ 'newlines':4, 'spaces':30, 'margins':'180:0:0:330' },
+	'large'     :{ 'newlines':7, 'spaces':40, 'margins':'160:0:0:120' },
+	'stationery':{ 'newlines':6, 'spaces':20, 'margins':'155:0:0:425' }
+	}
 
 def displayForm():
-	print "<h3>Print an Envelope on ", socket.gethostname(), "</h3>\n"
+	print "<h1>Print an Envelope on ", socket.gethostname(), "</h1>"
 	print "<FORM METHOD=post ACTION='envelope.py'>"
 
-	#----- Return Address ------
 	# TODO seed fromaddress from server/browser history
 	fromAddress = ''
 	try:
@@ -42,32 +34,66 @@ def displayForm():
 			fromAddress = sanitizeAddress(f.read())
 	except Exception:
 		pass
-	print "<div id='fromHidden' onclick='showhide()'>"
-	print "<p>&#x25B6;From:</p>"
-	print "</div>"
-	print "<div id='fromShowing' class='hidden' onclick='showhide()'>"
-	print "<p>&#x25BC;From:</p>"
-	print "</div>"
-	print "<div id='fromEntry' class='hidden'>"
-	print "<textarea name='fromAddress' cols=40 rows=5>"
+
+	toAddress = ''
+
+	#----- Return Address ------
+	print '''
+		<div id='fromHidden' onclick='showhide()'>
+		<h3>&#x25B6;From:</h3>
+		</div>
+		<div id='fromShowing' class='hidden' onclick='showhide()'>
+		<h3>&#x25BC;From:</h3>
+		</div>
+		<div id='fromEntry' class='hidden'>
+		<textarea name='fromAddress' class='yellowbackground' cols=40 rows=5>'''
 	print '\n'.join(fromAddress)
-	print "</textarea>"
-	print "</div>"
+	print '''</textarea>
+		</div>
+		'''
 	
 	#----- To Address ------
-	print "<p>To:</p>"
-	print "<div><textarea name='toAddress' cols=40 rows=5></textarea></div>"
+	print '''
+		<h3>To:</h3>
+		<div><textarea name='toAddress' class='yellowbackground' cols=40 rows=5> '''
+	print '\n'.join(toAddress)
+	print '''</textarea>
+		</div>
+		'''
+
+	#----- Settings  / Enter -----
+	print '''
+		<p class='clear'>&nbsp;</p>
+		<div class='clear'>
+		'''
+
+	#----- Envelope size selection------
+	print '''
+		<div id='sizeSelection' class='floatLeft bordered greybackground'>
+		<h3>Envelope Size</h3>
+		<input type='radio' name='size' value='stationery' checked>Stationery<br>
+		<input type='radio' name='size' value='large'>Large #10<br>
+		<input type='radio' name='size' value='small'>Small<br>
+		<p></p>
+		</div>
+		'''
 
 	#----- Enter Button ------
-	print "<p></p>"
-	print "<INPUT TYPE=hidden NAME ='action' VALUE='print'>"
-	print "<INPUT TYPE=submit VALUE='Enter' class='button large green'>"
-	print "</FORM>"
+	print '''
+		<div id='formSubmit' class='floatLeft'>
+		<p></p>
+		<INPUT TYPE=hidden NAME ='action' VALUE='print'>
+		<INPUT TYPE=submit VALUE='Enter' class='button large green'>
+		</FORM>
+		</div>
+
+		</div>
+		'''
 
 
 def displayResults(result):
-	print "<h3>Printed address:</h3>"
-	print "<pre style=\"background-color:#faf8f0; outline: 1px solid black; padding:5px;\">"
+	print "<p class='bold'>Printed address:</p>"
+	print "<pre style='background-color:lightyellow; outline: 1px solid black; padding:5px;'>"
 	print result[0]
 	print "</pre>"
 	print "<p>OS responded: ", result if DEBUG else result[1], "</p>\n"
@@ -84,15 +110,15 @@ def sanitizeAddress(address):
 	return result
 
 
-def print_envelope(fromAddress, toAddress):
-	vmargin = "\n" * 6
-	hmargin = " " * 20
+def print_envelope(fromAddress, toAddress, size):
+	vmargin = "\n" * printSettings[size]['newlines']
+	hmargin = " " * printSettings[size]['spaces']
 	content = ('\n'.join(fromAddress) + vmargin + 
 			hmargin + ("\n" + hmargin).join(toAddress))
 
 	cmd = ["/usr/bin/enscript", "--no-header", "--landscape", 
 		"--font=CourierBold@12"]
-	cmd.append("--margins=160:0:0:425")
+	cmd.append("--margins=" + printSettings[size]['margins'])
 	if DEBUG:
 		return [content, ' '.join(cmd)]
 	else:
@@ -105,20 +131,31 @@ def print_envelope(fromAddress, toAddress):
 
 # Define main function.
 def main():
+	print '''
+<meta http-equiv='content-type' content='text/html; charset=UTF-8'>
+<HTML>
+<HEAD>
+<link rel='stylesheet' type='text/css' href='envelope.css' media='screen' />
+<TITLE>Print an Envelope</TITLE>
+<script src='show.js'></script>
+</HEAD>
+<BODY>
+	'''
 	form = cgi.FieldStorage()
 	if (form.has_key("action") and 
-	form.has_key("toAddress")):
+	form.has_key("size")):
 		if (form["action"].value == "print"):
-			fromAddress = ''
-			if form.has_key("fromAddress"):
-				fromAddress = sanitizeAddress(form["fromAddress"].value)
-			toAddress = sanitizeAddress(form["toAddress"].value)
-			result = print_envelope(fromAddress, toAddress)
+			fromAddress = sanitizeAddress(form["fromAddress"].value) if form.has_key("fromAddress") else ''
+			toAddress = toAddress = sanitizeAddress(form["toAddress"].value) if form.has_key("toAddress") else ''
+			size = form["size"].value
+			result = print_envelope(fromAddress, toAddress, size)
 			displayResults(result)
 	else:
 		 displayForm()
-	print "</BODY>\n"
-	print "</HTML>\n"
+	print '''
+</BODY>
+</HTML>
+	'''
 
 # Call main function.
 main()

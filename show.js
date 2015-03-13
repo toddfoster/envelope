@@ -7,11 +7,11 @@ function showhide()
 
   if (fromHidden.style.display !== "none") {
     fromHidden.style.display = "none";
-    fromShowing.style.display = "inline";
-    fromEntry.style.display = "inline";
+    fromShowing.style.display = "block";
+    fromEntry.style.display = "block";
   }
   else {
-    fromHidden.style.display  = "inline";
+    fromHidden.style.display  = "block";
     fromShowing.style.display = "none";
     fromEntry.style.display   = "none";
   }
