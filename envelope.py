@@ -20,11 +20,12 @@ if DEBUG:
 
 returnAddressFile="/home/pi/Documents/tef/secrets/returnAddress.txt"
 
-print "Content-Type: text/html\n\n"
+print "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>"
 print "<HTML>"
 print "<HEAD>"
 print "<link rel='stylesheet' type='text/css' href='buttons.css' media='screen' />"
 print "<TITLE>Print an Envelope</TITLE>"
+print "<script src='show.js'></script>"
 print "</HEAD>"
 print "<BODY>"
 
@@ -33,9 +34,15 @@ def displayForm():
 	print "<FORM METHOD=post ACTION='envelope.py'>"
 
 	# TODO seed fromaddress from server/browser history
-	# TODO on-load, hide fromaddress when non-empty
-	print "<p>From:</p>"
-	print "<div><textarea name='fromAddress' cols=40 rows=5></textarea></div>"
+	print "<div id='fromHidden' onclick='showhide()'>"
+	print "<p>&#x25B6;From:</p>"
+	print "</div>"
+	print "<div id='fromShowing' class='hidden' onclick='showhide()'>"
+	print "<p>&#x25BC;From:</p>"
+	print "</div>"
+	print "<div id='fromEntry' class='hidden'>"
+	print "<textarea name='fromAddress' cols=40 rows=5></textarea>"
+	print "</div>"
 	
 	print "<p>To:</p>"
 	print "<div><textarea name='toAddress' cols=40 rows=5></textarea></div>"
