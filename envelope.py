@@ -3,12 +3,12 @@
 # TODO: radio button to select envelope size
 # TODO: show/hide return address box
 # TODO: remember addresses printed, allow user to select
-# TODO: improve css for rounding corners, image gradient, etc.
 # Done: 
 # 20150303: Figured out CGI, form, call to shell: works
 # 20140305: bring bash script into python, calling enscript directly
 # 20150305: output result from enscript to printing screen
 # 20150312: allow entry of return address with default
+# 20150313: improve css for rounding corners, image gradient, etc.
 
 import cgi
 import subprocess 
@@ -54,7 +54,7 @@ def displayResults(result):
 	print "</pre>"
 	print "<p>OS responded: ", result if DEBUG else result[1], "</p>\n"
 	print "<p></p>"
-	print "<p><a href='./envelope.py' class='button large black'>Print another</a></p>"
+	print "<p><a href='./envelope.py' class='button large green'>Print another</a></p>"
 
 
 def sanitizeAddress(address):

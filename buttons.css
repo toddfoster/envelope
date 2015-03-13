@@ -1,5 +1,9 @@
-# src: http://devgrow.com/super-simple-css-buttons/
-.button {
+/*
+ beginning point: http://devgrow.com/super-simple-css-buttons/
+*/ 
+
+.button { 
+    text-decoration: none;
     padding: 5px 10px;
     display: inline;
     background: #777 url(button.png) repeat-x bottom;
@@ -7,11 +11,13 @@
     color: #fff;
     cursor: pointer;
     font-weight: bold;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+    border-radius: 20px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
     text-shadow: 1px 1px #666;
     }
+
 .button:hover {
     background-position: 0 -48px;
     }
@@ -21,6 +27,7 @@
     top: 1px;
     padding: 6px 10px 4px;
     }
+
 .button.red { background-color: #e50000; }
 .button.purple { background-color: #9400bf; }
 .button.green { background-color: #58aa00; }
