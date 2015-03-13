@@ -34,6 +34,7 @@ def displayForm():
 	print "<h3>Print an Envelope on ", socket.gethostname(), "</h3>\n"
 	print "<FORM METHOD=post ACTION='envelope.py'>"
 
+	#----- Return Address ------
 	# TODO seed fromaddress from server/browser history
 	fromAddress = ''
 	try:
@@ -53,13 +54,14 @@ def displayForm():
 	print "</textarea>"
 	print "</div>"
 	
+	#----- To Address ------
 	print "<p>To:</p>"
 	print "<div><textarea name='toAddress' cols=40 rows=5></textarea></div>"
 
+	#----- Enter Button ------
 	print "<p></p>"
-
 	print "<INPUT TYPE=hidden NAME ='action' VALUE='print'>"
-	print "<INPUT TYPE=submit VALUE='Enter'>"
+	print "<INPUT TYPE=submit VALUE='Enter' class='button large green'>"
 	print "</FORM>"
 
 
