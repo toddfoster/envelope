@@ -1,14 +1,15 @@
 #!/usr/bin/python
 
 # TODO: radio button to select envelope size
-# TODO: show/hide return address box
-# TODO: remember addresses printed, allow user to select
+# TODO: remember addresses printed, associated return, allow user to select
 # Done: 
 # 20150303: Figured out CGI, form, call to shell: works
 # 20140305: bring bash script into python, calling enscript directly
 # 20150305: output result from enscript to printing screen
 # 20150312: allow entry of return address with default
 # 20150313: improve css for rounding corners, image gradient, etc.
+# 20150313: show/hide return address box
+# 20150313: provide default address in return address box
 
 import cgi
 import subprocess 
@@ -34,6 +35,12 @@ def displayForm():
 	print "<FORM METHOD=post ACTION='envelope.py'>"
 
 	# TODO seed fromaddress from server/browser history
+	fromAddress = ''
+	try:
+		with open(returnAddressFile) as f:
+			fromAddress = sanitizeAddress(f.read())
+	except Exception:
+		pass
 	print "<div id='fromHidden' onclick='showhide()'>"
 	print "<p>&#x25B6;From:</p>"
 	print "</div>"
@@ -41,7 +48,9 @@ def displayForm():
 	print "<p>&#x25BC;From:</p>"
 	print "</div>"
 	print "<div id='fromEntry' class='hidden'>"
-	print "<textarea name='fromAddress' cols=40 rows=5></textarea>"
+	print "<textarea name='fromAddress' cols=40 rows=5>"
+	print '\n'.join(fromAddress)
+	print "</textarea>"
 	print "</div>"
 	
 	print "<p>To:</p>"
@@ -101,12 +110,6 @@ def main():
 			fromAddress = ''
 			if form.has_key("fromAddress"):
 				fromAddress = sanitizeAddress(form["fromAddress"].value)
-			if len(fromAddress) == 0:
-				try:
-					with open(returnAddressFile) as f:
-						fromAddress = sanitizeAddress(f.read())
-				except Exception:
-					pass
 			toAddress = sanitizeAddress(form["toAddress"].value)
 			result = print_envelope(fromAddress, toAddress)
 			displayResults(result)
