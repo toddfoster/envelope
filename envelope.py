@@ -17,9 +17,10 @@ if DEBUG:
 
 returnAddressFile="/home/pi/Documents/tef/secrets/returnAddress.txt"
 
+# enscript --margins=left:right:top:bottom (of portrait 8.5x11 page)
 printSettings = {
 	'small'     :{ 'newlines':4, 'spaces':30, 'margins':'180:0:0:330' },
-	'large'     :{ 'newlines':7, 'spaces':40, 'margins':'160:0:0:120' },
+	'large'     :{ 'newlines':7, 'spaces':40, 'margins':'160:0:0:180' },
 	'stationery':{ 'newlines':6, 'spaces':20, 'margins':'155:0:0:425' }
 	}
 
