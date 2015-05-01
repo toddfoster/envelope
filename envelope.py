@@ -17,9 +17,15 @@ if DEBUG:
 
 returnAddressFile="/home/pi/Documents/tef/secrets/returnAddress.txt"
 
-# enscript --margins=left:right:top:bottom (of portrait 8.5x11 page)
+# enscript --margins=left:right:top:bottom
+# measured in PS points: 72pts/in
+# The "bottom" value is from the bottom of an 8.5x11 portrait sheet of
+# paper: i.e., the margin from the left to start printing on  the left
+# of my envelope fed in landscape to my hp LaserJet 1320.
+# The "left" value is from the left of the page to the start of the top
+# of the envelope.
 printSettings = {
-	'small'     :{ 'newlines':4, 'spaces':30, 'margins':'180:0:0:330' },
+	'small'     :{ 'newlines':4, 'spaces':30, 'margins':'162:0:0:370' },
 	'large'     :{ 'newlines':7, 'spaces':40, 'margins':'160:0:0:180' },
 	'stationery':{ 'newlines':6, 'spaces':20, 'margins':'155:0:0:425' }
 	}
