@@ -25,7 +25,7 @@ returnAddressFile="/home/pi/Documents/tef/secrets/returnAddress.txt"
 # The "left" value is from the left of the page to the start of the top
 # of the envelope.
 printSettings = {
-	'small'     :{ 'newlines':4, 'spaces':30, 'margins':'162:0:0:370' },
+	'small'     :{ 'newlines':6, 'spaces':20, 'margins':'162:0:0:370' },
 	'large'     :{ 'newlines':7, 'spaces':40, 'margins':'160:0:0:180' },
 	'stationery':{ 'newlines':6, 'spaces':20, 'margins':'155:0:0:425' }
 	}
